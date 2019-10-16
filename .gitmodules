@@ -1,0 +1,3 @@
+[submodule "org.christbaptist.Visualizations/org_christbaptist/DataViewVisualizer/src"]
+	path = org.christbaptist.Visualizations/org_christbaptist/DataViewVisualizer/src
+	url = https://github.com/ChristBaptistChurch/cbc-dot-visualizations.git
