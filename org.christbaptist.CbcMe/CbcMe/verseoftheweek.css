@@ -1,0 +1,39 @@
+﻿.verse-of-the-week {
+    /*font-size: 1.2rem;*/
+}
+
+h3 {
+    font-weight: 600 !important;
+}
+
+.reference {
+    font-weight: 600;
+}
+
+.text {
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.footer {
+    display: block;
+    clear: both;
+}
+
+.footer.btn {
+    display: block;
+}
+
+.btn-group.full-width {
+    width: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.btn-group.full-width .btn {
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    line-height: 2.0rem;
+}

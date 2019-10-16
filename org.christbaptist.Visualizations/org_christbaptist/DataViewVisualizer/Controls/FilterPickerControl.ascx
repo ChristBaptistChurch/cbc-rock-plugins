@@ -1,0 +1,56 @@
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="FilterPickerControl.ascx.cs" Inherits="org.christbaptist.Visualizations.FilterPickerControl" %>
+
+<asp:UpdatePanel ID="upnlFilters" runat="server" UpdateMode="Conditional">
+    <ContentTemplate>
+        <Rock:PanelWidget ID="pwFilters" runat="server" Title="Filters" Expanded="true">
+            <Rock:DataViewsPicker ID="dvDataViewPicker" runat="server" Label="Filters" Help="Select data views you want to represent in this visulization" AutoPostBack="True" OnTextChanged="dvDataView_SelectedItem" />
+
+            <div class="row showFilterKey"><div class="col-xs-12"><Rock:RockCheckBox ID="cbShowFilterKey" Label="Show Filter Key" runat="server" Checked="true" Help="Show the filter key in the top left hand corner of the chart" /></div></div>
+
+            <Rock:RockControlWrapper ID="rcwDataFilters" runat="server">
+                <asp:Repeater ID="rptDataFilters" runat="server" OnItemDataBound="rptDataFilters_ItemDataBound">
+                    <ItemTemplate>
+                        <asp:Panel ID="Panel1" runat="server" class="sccDvvFilterSection" ondragover="dragover_handler(event)" ondrop="drop_handler(event)">
+                            <asp:HiddenField ID="hfFilterId" runat="server" />
+                            <asp:HiddenField ID="hfSortOrder" runat="server" />
+                            <div class="sccDvvFilterSection_title">
+                                <div class="reorder" draggable="true" ondragstart="dragstart_handler(event)">
+                                    <i class="fa fa-bars"></i>
+                                </div>
+                                <svg style="width: 30px; height: 30px; margin-right: 5px;">
+                                    <circle r="10" cy="15" cx="15" class="dot red"></circle>
+                                </svg>
+                                <asp:Literal ID="lFilterName" runat="server" />
+                            </div>
+                            <div class="row enabledByDefault">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <Rock:RockCheckBox ID="cbActiveByDefault" runat="server" Label="Visible by Default" Checked="true" />
+                                </div>
+                            </div>
+                            <div class="row js-filterconfig-row">
+                                <div class="col-md-4">
+                                    <Rock:RockTextBox ID="tbDisplayName" runat="server" Label="Display As" Help="The name to show for the filter" CssClass="js-settings-pre-html" ValidateRequestMode="Disabled" />
+                                </div>
+                                <div class="col-md-3 sccDvvFilterColorPicker">
+                                    <Rock:RockDropDownList ID="ddlDisplayStyle" runat="server" Label="Style" Help="The style to use when displaying people who match this filter" onchange="displayOptionChosen(this)">
+                                        <asp:ListItem Value="red">Red</asp:ListItem>
+                                        <asp:ListItem Value="orange">Orange</asp:ListItem>
+                                        <asp:ListItem Value="yellow">Yellow</asp:ListItem>
+                                        <asp:ListItem Value="green">Green</asp:ListItem>
+                                        <asp:ListItem Value="blue">Blue</asp:ListItem>
+                                        <asp:ListItem Value="purple">Purple</asp:ListItem>
+                                        <asp:ListItem Value="outline">Outline</asp:ListItem>
+                                        <asp:ListItem Value="custom">Custom</asp:ListItem>
+                                    </Rock:RockDropDownList>
+                                </div>
+                                <div class="col-md-4 custom-css">
+                                    <Rock:RockTextBox ID="tbCSS" runat="server" Label="CSS" Help="Custom CSS properties to apply. NOTE: These must be for SVG elements, not HTML elements." CssClass="js-settings-pre-html" ValidateRequestMode="Disabled" TextMode="MultiLine" Rows="5" onchange="updateCustomStyles(this)" />
+                                </div>
+                            </div>
+                        </asp:Panel>
+                    </ItemTemplate>
+                </asp:Repeater>
+            </Rock:RockControlWrapper>
+        </Rock:PanelWidget>
+    </ContentTemplate>
+</asp:UpdatePanel>

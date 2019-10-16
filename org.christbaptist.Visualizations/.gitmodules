@@ -1,0 +1,3 @@
+[submodule "DataViewVisualizer/src"]
+	path = DataViewVisualizer/src
+	url = https://github.com/OnlyByGrace/cbc-rock-visualizations.git
