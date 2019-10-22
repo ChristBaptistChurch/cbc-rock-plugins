@@ -1,11 +1,15 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="FilterPickerControl.ascx.cs" Inherits="org.christbaptist.Visualizations.FilterPickerControl" %>
 
-<asp:UpdatePanel ID="upnlFilters" runat="server" UpdateMode="Conditional">
+<%--<asp:UpdatePanel ID="upnlFilters" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
         <Rock:PanelWidget ID="pwFilters" runat="server" Title="Filters" Expanded="true">
             <Rock:DataViewsPicker ID="dvDataViewPicker" runat="server" Label="Filters" Help="Select data views you want to represent in this visulization" AutoPostBack="True" OnTextChanged="dvDataView_SelectedItem" />
 
-            <div class="row showFilterKey"><div class="col-xs-12"><Rock:RockCheckBox ID="cbShowFilterKey" Label="Show Filter Key" runat="server" Checked="true" Help="Show the filter key in the top left hand corner of the chart" /></div></div>
+            <div class="row showFilterKey">
+                <div class="col-xs-12">
+                    <Rock:RockCheckBox ID="cbShowFilterKey" Label="Show Filter Key" runat="server" Checked="true" Help="Show the filter key in the top left hand corner of the chart" />
+
+                </div></div>
 
             <Rock:RockControlWrapper ID="rcwDataFilters" runat="server">
                 <asp:Repeater ID="rptDataFilters" runat="server" OnItemDataBound="rptDataFilters_ItemDataBound">
@@ -53,4 +57,4 @@
             </Rock:RockControlWrapper>
         </Rock:PanelWidget>
     </ContentTemplate>
-</asp:UpdatePanel>
+</asp:UpdatePanel>--%>

@@ -1,0 +1,10 @@
+bin\org.christbaptist.Visualizations.dll
+Plugins\org_christbaptist\DotChartVisualizations\DataViewVisualizer.ascx
+Plugins\org_christbaptist\DotChartVisualizations\DataViewVisualizer.ascx.cs
+Plugins\org_christbaptist\DotChartVisualizations\GroupVisualizer.ascx
+Plugins\org_christbaptist\DotChartVisualizations\GroupVisualizer.ascx.cs
+Plugins\org_christbaptist\DotChartVisualizations\VennVisualizer.ascx
+Plugins\org_christbaptist\DotChartVisualizations\VennVisualizer.ascx.cs
+Plugins\org_christbaptist\DotChartVisualizations\Scripts\admin.js
+Plugins\org_christbaptist\DotChartVisualizations\Scripts\main.js
+Plugins\org_christbaptist\DotChartVisualizations\Scripts\visualizations.css

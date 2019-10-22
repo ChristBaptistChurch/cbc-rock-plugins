@@ -1,8 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="BucketDetailsControl.ascx.cs" Inherits="org.christbaptist.Visualizations.BucketDetailsControl" %>
 
 
-
-        <asp:Repeater ID="rptBucketRepeater" runat="server" OnItemDataBound="rptBucketRepeater_ItemDataBound">
+        <%--<asp:Repeater ID="rptBucketRepeater" runat="server" OnItemDataBound="rptBucketRepeater_ItemDataBound">
             <ItemTemplate>
                 <asp:Panel ID="Panel1" runat="server" class="sccDvvFilterSection" ondragover="dragover_handler(event)" ondrop="drop_handler(event)">
                     <asp:HiddenField ID="hfBucketId" runat="server" />
@@ -20,5 +19,5 @@
                     </div>
                 </asp:Panel>
             </ItemTemplate>
-        </asp:Repeater>
+        </asp:Repeater>--%>
  

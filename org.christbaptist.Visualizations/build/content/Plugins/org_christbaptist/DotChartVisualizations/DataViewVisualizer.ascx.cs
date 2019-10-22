@@ -33,43 +33,41 @@ using org.christbaptist.Visualizations.Model;
 
 namespace RockWeb.Plugins.org_christbaptist.Visualizers
 {
+    public class EntityEntry
+    {
+        public int Id;
+    }
+
     /// <summary>
     /// Template block for developers to use to start a new block.
     /// </summary>
-    [DisplayName("Group Visualizer")]
+    [DisplayName( "Data View Visualizer" )]
     [Category("Christ Baptist > Visualizations")]
-    [Description("Visual diagrams to represent groups")]
+    [Description( "Visual diagrams to represent data views" )]
 
     [TextField("EntityTypeId", "The entity type Id of the entities represented in this visualization", false, "15", "CustomSetting")]
 
     [TextField("EntityUrl", "The URL to visit when an entity is clicked", false, "/person/{{Id}}", "CustomSetting")]
-    [TextField("GroupViewUrl", "The URL to visit when a group is clicked", false, "/page/145?DataViewId={{Id}}", "CustomSetting")]
+    [TextField("DataViewUrl", "The URL to visit when a dataview is clicked", false, "/page/145?DataViewId={{Id}}", "CustomSetting")]
+
     [TextField("Style", "The default chart style", false, "circle", "CustomSetting")]
 
-    [TextField("Buckets", "Groups to form the basis of the visualization", false, "[]", "CustomSetting")]
-
-    [TextField("ShowChildren", "Show the children of the selected groups", false, "", "CustomSetting")]
+    [TextField("Buckets", "Data views to form the basis of the visualization", false, "[]", "CustomSetting")]
     [TextField("Filters", "Data Views to highlight on the visualization", false, "[]", "CustomSetting")]
     [TextField("ShowFilterKey", "ShowFilterKey", false, "true", "CustomSetting")]
     [TextField("Title", "The title to use on the visualization", false, "", "CustomSetting")]
-    [TextField("SummaryLava", "What to display when you hover over a person's circle.", false, @"<div class='text-center'>
+    [TextField("SummaryLava", "What to display when you hover over a person's circle", false, @"<div class='text-center'>
             <img src =""{{Row.PhotoUrl}}"" style = ""max-width: 200px;"" />
-            {%for filter in Filters %}  
-                <div style=""width: 100 %; background-color: pink; padding: 10px;margin-top: 10px;"">
+            {%for filter in Filters %}
+                <div style=""width: 100 %; background-color: pink; padding: 10px; margin-top: 10px;"">
                     <i class=""fa fa-exclamation-circle"" style=""color: red;""></i> {{ filter.DisplayAs }}
                 </div>
             {% endfor %}
             <h2>{{ Row.NickName }} {{ Row.LastName }}</h2>
             <p>{{ Row.ConnectionStatusValue.Value }}</p>
         </div>", "CustomSetting")]
-    public partial class GroupVisualizer : Rock.Web.UI.RockBlockCustomSettings
+    public partial class DataViewVisualizer : Rock.Web.UI.RockBlockCustomSettings
     {
-
-        class EntityEntry
-        {
-            public int Id;
-        }
-
         #region Fields
 
         // used for private variables
@@ -77,7 +75,7 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
         {
             get
             {
-                return (Dictionary<string, Filter>)ViewState["filters"] ?? new Dictionary<string, Filter>();
+                return (Dictionary<string, Filter>) ViewState["filters"] ?? new Dictionary<string, Filter>();
             }
 
             set
@@ -126,11 +124,11 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
                 }
 
                 var rockContext = new RockContext();
-                var groupService = new GroupService(rockContext);
+                var dataViewService = new DataViewService(rockContext);
                 SortProperty sortBy = new SortProperty();
                 sortBy.Property = "Id";
                 sortBy.Direction = SortDirection.Ascending;
-                
+
                 var errorMessages = new List<string>();
 
                 foreach (Bucket bucket in buckets)
@@ -138,16 +136,16 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
                     if (bucket != null && bucket.Id != 0)
                     {
 
-                        Group group = groupService.Get(bucket.Id);
+                        DataView dataView = dataViewService.Get(bucket.Id);
 
                         if (bucket.Name.IsNullOrWhiteSpace())
                         {
-                            bucket.Name = group.Name;
+                            bucket.Name = dataView.Name;
                         }
 
-                        if (group.IsAuthorized(Authorization.VIEW, CurrentPerson))
+                        if (dataView.EntityTypeId.HasValue && dataView.IsAuthorized(Authorization.VIEW, CurrentPerson))
                         {
-                            bucket.data = group.Members.Select(o => new { Id = o.PersonId }).ToArray();
+                            bucket.data = dataView.GetQuery(sortBy, 180, out errorMessages).Select(o => new { Id = o.Id }).ToArray();
                         }
                     }
                 }
@@ -219,29 +217,37 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
         /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
         /// </summary>
         /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
-        protected override void OnInit(EventArgs e)
+        protected override void OnInit( EventArgs e )
         {
-            base.OnInit(e);
+            base.OnInit( e );
 
             Page.MaintainScrollPositionOnPostBack = true;
 
             // this event gets fired after block settings are updated. it's nice to repaint the screen if these settings would alter it
-            this.BlockUpdated += Block_BlockUpdated;
-            this.AddConfigurationUpdateTrigger(upnlContent);
+            this.BlockUpdated += Block_BlockUpdated;    
+            this.AddConfigurationUpdateTrigger( upnlContent );
         }
-
+        
         /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad( EventArgs e )
         {
-            base.OnLoad(e);
-
+            base.OnLoad( e );
+            
             if (!Page.IsPostBack)
             {
                 filters = GetAttributeValue("Filters").FromJsonOrNull<Dictionary<string, Filter>>() ?? new Dictionary<string, Filter>();
                 buckets = GetAttributeValue("Buckets").FromJsonOrNull<List<Bucket>>() ?? new List<Bucket>();
+            }
+
+            if ( !Page.IsPostBack )
+            {
+                // added for your convenience
+
+                // to show the created/modified by date time details in the PanelDrawer do something like this:
+                // pdAuditDetails.SetEntity( <YOUROBJECT>, ResolveRockUrl( "~" ) );
             }
         }
 
@@ -251,28 +257,37 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
 
             txtVisualizationTitle.Text = GetAttributeValue("Title");
 
-            // Load groups
-            List<Bucket> groupList = GetAttributeValue("Buckets").FromJsonOrNull<List<Bucket>>() ?? new List<Bucket>();
-            var groupListIds = from Bucket b in groupList select b.Id;
-            var groups = new GroupService(new RockContext())
-                    .Queryable()
-                    .Where(g => groupListIds.Any((id) => id == g.Id))
-                    .ToList();
-            dvGroup.SetValues(groups);            
+            etpEntityType.EntityTypes = new EntityTypeService(new RockContext())
+                .Queryable()
+                .OrderBy(t => t.FriendlyName).ToList();
+            etpEntityType.SelectedEntityTypeId = GetAttributeValue("EntityTypeId").AsInteger();
+
+            dvDataViewBucketPicker.EntityTypeId = GetAttributeValue("EntityTypeId").AsInteger();
+
+            // Load Data Views
+            List<Bucket> buckets = GetAttributeValue("Buckets").FromJsonOrNull<List<Bucket>>() ?? new List<Bucket>();
+            var dataViewsOptions = from ListItem li in dvDataViewBucketPicker.Items
+                        where buckets.Any((bucket) => { return bucket.Id == li.Value.AsInteger(); })
+                        select li;
+            foreach (ListItem li in dataViewsOptions)
+            {
+                li.Selected = true;
+            }
 
             tbSummaryLava.Text = GetAttributeValue("SummaryLava");
-            ddlDefaultStyle.SelectedValue = GetAttributeValue("Style");
+            ddlDefaultStyle.SelectedValue = GetAttributeValue("Style");            
 
             mdConfigure.Show();
 
-            BucketDetailsControl.buckets = groupList;
+            BucketDetailsControl.buckets = buckets;
             BucketDetailsControl.Refresh();
+            upnlBuckets.Update();
 
             FilterControl.EntityTypeId = GetAttributeValue("EntityTypeId").AsInteger();
             FilterControl.ShowFilterKey = GetAttributeValue("ShowFilterKey").AsBoolean();
             FilterControl.filters = filters;
             FilterControl.Refresh();
-            
+
             upnlContent.Update();
         }
 
@@ -280,6 +295,7 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
         {
             buckets = BucketDetailsControl.buckets;
             filters = FilterControl.filters;
+
             SetAttributeValue("Buckets", buckets.ToJson());
             SetAttributeValue("Filters", filters.ToJson());
 
@@ -287,8 +303,9 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
             SetAttributeValue("SummaryLava", tbSummaryLava.Text);
             SetAttributeValue("Style", ddlDefaultStyle.SelectedValue);
             SetAttributeValue("EntityUrl", tbEntityUrl.Text);
-            SetAttributeValue("GroupViewUrl", tbGroupViewUrl.Text);
+            SetAttributeValue("DataViewUrl", tbDataViewUrl.Text);
             SetAttributeValue("ShowFilterKey", FilterControl.ShowFilterKey.ToString());
+            SetAttributeValue("EntityTypeId", etpEntityType.SelectedValue);
 
             SaveAttributeValues();
         }
@@ -303,7 +320,50 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
 
             this.Block_BlockUpdated(sender, e);
         }
-        
+
+        protected void rptBucketRepeater_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            Bucket bucket = e.Item.DataItem as Bucket;
+            if (bucket != null)
+            {
+                Literal lBucketName = e.Item.FindControl("lBucketName") as Literal;
+                HiddenField BucketId = e.Item.FindControl("hfBucketId") as HiddenField;
+                HiddenField BucketOrder = e.Item.FindControl("hfSortOrder") as HiddenField;
+                RockTextBox tbDisplayName = e.Item.FindControl("tbDisplayName") as RockTextBox;
+
+                BucketId.Value = bucket.Id.ToString();
+                BucketOrder.Value = bucket.Order.ToString();
+                lBucketName.Text = bucket.Name;
+                tbDisplayName.Text = bucket.DisplayAs;
+            }
+        }
+
+        protected void rptDataFilters_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            Filter filter = e.Item.DataItem as Filter;
+            if (filter != null)
+            {
+                Literal lFilterName = e.Item.FindControl("lFilterName") as Literal;
+                HiddenField FilterId = e.Item.FindControl("hfFilterId") as HiddenField;
+                HiddenField FilterOrder = e.Item.FindControl("hfSortOrder") as HiddenField;
+                RockTextBox tbDisplayName = e.Item.FindControl("tbDisplayName") as RockTextBox;
+                RockTextBox tbCSS = e.Item.FindControl("tbCSS") as RockTextBox;
+
+                RockDropDownList ddlDisplayStyle = e.Item.FindControl("ddlDisplayStyle") as RockDropDownList;
+                RockCheckBox cbActiveByDefault = e.Item.FindControl("cbActiveByDefault") as RockCheckBox;
+
+                FilterId.Value = filter.Id;
+                FilterOrder.Value = filter.Order.ToString();
+                lFilterName.Text = filter.DataViewName;
+                tbDisplayName.Text = filter.DisplayAs;
+                tbCSS.Text = filter.CSS;
+                cbActiveByDefault.Checked = filter.ActiveByDefault;
+
+                ScriptManager.RegisterStartupScript(this.Page, typeof(System.Web.UI.Page), "UpdateSelections",
+               "$(document).ready(function(){initializeOptions(" + ddlDisplayStyle.ClientID+")});", true);
+            }
+        }
+
         #endregion
 
         #region Events
@@ -315,29 +375,45 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void Block_BlockUpdated(object sender, EventArgs e)
+        protected void Block_BlockUpdated( object sender, EventArgs e )
         {
             // reload the full page since controls are dynamically created based on block settings
             NavigateToPage(this.CurrentPageReference);
         }
 
-        protected void dvGroup_ValueChanged(object sender, EventArgs e)
+        protected void etpEntityType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            dvDataViewBucketPicker.ClearSelection();
+            dvDataViewBucketPicker.EntityTypeId = etpEntityType.SelectedEntityTypeId;
+
+            buckets = new List<Bucket>();
+            filters = new Dictionary<string, Filter>();
+
+            BucketDetailsControl.buckets = buckets;
+            BucketDetailsControl.Refresh();
+            upnlBuckets.Update();
+
+            FilterControl.EntityTypeId = etpEntityType.SelectedEntityTypeId ?? 0;
+            FilterControl.filters = filters;
+            FilterControl.Refresh();
+        }
+
+        protected void dvDataViewBucketPicker_SelectedItem(object sender, EventArgs e)
         {
             this.buckets = BucketDetailsControl.buckets;
-            
+
             // Check selections against current selections to determine if a change has been made
             var changeMade = false;
 
             // Setup a list of Filters based on dataviews that are selected
             var newBuckets = new List<Bucket>();
-            List<int> selectedGroupIds = dvGroup.ItemIds.AsIntegerList();
-            List<string> selectedGroupNames = dvGroup.ItemNames.ToList();
-            for (var i = 0; i < selectedGroupNames.Count; i++)
+            var query = from ListItem item in dvDataViewBucketPicker.Items where item.Selected select item;
+            foreach (ListItem item in query)
             {
                 Bucket newBucket = new Bucket();
-                newBucket.Id = selectedGroupIds[i];
-                newBucket.Name = selectedGroupNames[i];
-                newBucket.DisplayAs = selectedGroupNames[i];
+                newBucket.Id = item.Value.AsInteger();
+                newBucket.Name = item.Text;
+                newBucket.DisplayAs = item.Text;
                 newBucket.Order = buckets.Count() + 1;
 
                 newBuckets.Add(newBucket);
@@ -370,11 +446,8 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
             {
                 BucketDetailsControl.buckets = buckets;
                 BucketDetailsControl.Refresh();
-                //UpdatePanel1.Update();
             }
         }
-
-
 
         #endregion
 
@@ -383,6 +456,5 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
         // helper functional methods (like BindGrid(), etc.)
 
         #endregion
-
     }
 }

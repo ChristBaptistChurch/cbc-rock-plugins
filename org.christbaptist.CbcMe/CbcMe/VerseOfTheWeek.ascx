@@ -71,7 +71,7 @@
     $.get({
         url: "https://api.esv.org/v3/passage/text/?include-passage-references=false&include-headings=false&include-verse-numbers=false&include-footnotes=false&q=" + currentVerse,
         headers: {
-            'Authorization': 'Token ffb17bd0d7b71aa3f41b17284cb3f46b2b666dd9'
+            'Authorization': 'Token xxx'
         },
         success: function (data) {
             currentText = data['passages'][0];
