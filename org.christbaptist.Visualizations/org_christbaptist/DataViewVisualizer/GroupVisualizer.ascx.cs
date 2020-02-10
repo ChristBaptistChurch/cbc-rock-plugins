@@ -203,7 +203,7 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
         {
             get
             {
-                return GetAttributeValue("DataViewUrl").ToJson();
+                return GetAttributeValue("GroupViewUrl").ToJson();
             }
         }
 
@@ -262,6 +262,8 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
 
             tbSummaryLava.Text = GetAttributeValue("SummaryLava");
             ddlDefaultStyle.SelectedValue = GetAttributeValue("Style");
+            tbEntityUrl.Text = GetAttributeValue("EntityUrl");
+            tbGroupViewUrl.Text = GetAttributeValue("GroupViewUrl");
 
             mdConfigure.Show();
 

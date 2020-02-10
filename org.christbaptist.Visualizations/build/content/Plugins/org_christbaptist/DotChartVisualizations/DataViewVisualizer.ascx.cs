@@ -261,7 +261,6 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
                 .Queryable()
                 .OrderBy(t => t.FriendlyName).ToList();
             etpEntityType.SelectedEntityTypeId = GetAttributeValue("EntityTypeId").AsInteger();
-
             dvDataViewBucketPicker.EntityTypeId = GetAttributeValue("EntityTypeId").AsInteger();
 
             // Load Data Views
@@ -275,7 +274,9 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
             }
 
             tbSummaryLava.Text = GetAttributeValue("SummaryLava");
-            ddlDefaultStyle.SelectedValue = GetAttributeValue("Style");            
+            ddlDefaultStyle.SelectedValue = GetAttributeValue("Style");
+            tbEntityUrl.Text = GetAttributeValue("EntityUrl");
+            tbDataViewUrl.Text = GetAttributeValue("DataViewUrl");
 
             mdConfigure.Show();
 

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Children Volunteers</title>
+    <style>
+        html {
+            width: 960px;
+            overflow: hidden;
+            font-family: 'Open Sans';
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .people {
+            width: 960px;
+            display: flex;
+            flex-wrap: wrap;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+
+            animation: 1s fadeIn;
+        }
+
+        .people.exiting {
+            animation: 1s fadeOut;
+        }
+
+        .person .image {
+            width: 171px;
+            height: 261px;
+            overflow: hidden;
+            background-position: center center;
+            background-size: cover;
+            margin-bottom: 15px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .person .name {
+            font-size: 36px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .person:nth-child(2) .name {
+            color: purple;
+        }
+
+        .person {
+            width: 50%;
+            height: 350px;
+            margin-bottom: 115px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="people">
+
+    </div>
+    <script>
+        function updatePeople(groupMembers, currentIndex) {
+            let peopleEl = document.getElementsByClassName('people')[0];
+
+            let cNode = peopleEl.cloneNode(false);
+            peopleEl.parentNode.appendChild(cNode);
+            // peopleEl.parentNode.removeChild(peopleEl);
+
+            peopleEl.addEventListener('animationend', () => {
+                peopleEl.parentNode.removeChild(peopleEl);
+            })
+
+            
+            peopleEl.classList.add('exiting');
+
+            let i;
+            for (i = currentIndex; i < currentIndex + 8; i++) {
+                let newPersonEl = document.createElement("div");
+                newPersonEl.classList.add('person');
+                let personImageContainer = document.createElement('div');
+                personImageContainer.classList.add('image');
+                personImageContainer.style.backgroundImage = `url(https://rock.christbaptist.org/GetImage.ashx?id=${groupMembers[i].Person.PhotoId}), url(https://rock.christbaptist.org/Content/ExternalSite/silhouette-e1472658360416-1.png)`;
+                let newPersonName = document.createElement('div');
+                newPersonName.classList.add('name');
+                newPersonName.innerText = `${groupMembers[i].Person.NickName} ${groupMembers[i].Person.LastName}`;
+
+                newPersonEl.appendChild(personImageContainer);
+                newPersonEl.appendChild(newPersonName);
+                cNode.appendChild(newPersonEl);
+            }
+        }
+
+        async function getPeople() {
+            let index = 0;
+
+            let volunteerResponse = await fetch(`https://rock.christbaptist.org/api/GroupMembers?$expand=Person&$filter=GroupId%20eq%208972`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization-Token': 'ZGmWL1Aaf1rA4U71WUIpyQ6X'
+                    },
+                    credentials: "include"
+                }
+            );
+
+            let volunteers = await volunteerResponse.json();
+
+            updatePeople(volunteers, index);
+            setInterval(() => {
+                index += 8;
+                if (index > volunteers.length) {
+                    index = 0;
+                }
+                updatePeople(volunteers, index);
+            }, 10000);
+        }
+
+        getPeople();
+    </script>
+</body>
+
+</html>
