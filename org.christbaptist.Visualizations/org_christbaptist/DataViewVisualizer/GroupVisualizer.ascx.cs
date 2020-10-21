@@ -125,6 +125,11 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
                     }
                 }
 
+                if (buckets == null)
+                {
+                    return "";
+                }
+
                 var rockContext = new RockContext();
                 var groupService = new GroupService(rockContext);
                 SortProperty sortBy = new SortProperty();
@@ -139,6 +144,13 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
                     {
 
                         Group group = groupService.Get(bucket.Id);
+
+                        // If a group that was configured for this visualizer has been deleted, don't show it
+                        if (group == null)
+                        {
+                            bucket.data = new string[0];
+                            continue;
+                        }
 
                         if (bucket.Name.IsNullOrWhiteSpace())
                         {
@@ -258,7 +270,8 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
                     .Queryable()
                     .Where(g => groupListIds.Any((id) => id == g.Id))
                     .ToList();
-            dvGroup.SetValues(groups);            
+            dvGroup.SetValues(groups);
+            List<Bucket> actualGroupList = groupList.Where(gl => groups.Any((g) => g.Id == gl.Id)).ToList();
 
             tbSummaryLava.Text = GetAttributeValue("SummaryLava");
             ddlDefaultStyle.SelectedValue = GetAttributeValue("Style");
@@ -267,7 +280,7 @@ namespace RockWeb.Plugins.org_christbaptist.Visualizers
 
             mdConfigure.Show();
 
-            BucketDetailsControl.buckets = groupList;
+            BucketDetailsControl.buckets = actualGroupList;
             BucketDetailsControl.Refresh();
 
             FilterControl.EntityTypeId = GetAttributeValue("EntityTypeId").AsInteger();
